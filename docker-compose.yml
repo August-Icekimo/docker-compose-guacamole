@@ -83,7 +83,7 @@
 # 0.6                2023-03-23        switched to postgres 15.2-alpine
 #####################################################################################
 
-version: '2.0'
+version: '2.1'
 
 # networks
 # create a network 'guacnetwork_compose' in mode 'bridged'
@@ -91,9 +91,7 @@ networks:
   guacnetwork_compose:
     driver: bridge
 
-# services
 services:
-  # guacd
   guacd:
     container_name: guacd_compose
     image: guacamole/guacd
@@ -109,9 +107,9 @@ services:
     environment:
       PGDATA: /var/lib/postgresql/data/guacamole
       POSTGRES_DB: guacamole_db
-      POSTGRES_PASSWORD: 'ChooseYourOwnPasswordHere1234'
+      POSTGRES_PASSWORD: 'IHaveChangeTheVerySecretHere7677'
       POSTGRES_USER: guacamole_user
-    image: postgres:15.2-alpine
+    image: postgres:alpine
     networks:
       guacnetwork_compose:
     restart: always
@@ -119,7 +117,6 @@ services:
     - ./init:/docker-entrypoint-initdb.d:z
     - ./data:/var/lib/postgresql/data:Z
 
-  # guacamole
   guacamole:
     container_name: guacamole_compose
     depends_on:
@@ -129,7 +126,7 @@ services:
       GUACD_HOSTNAME: guacd
       POSTGRES_DATABASE: guacamole_db
       POSTGRES_HOSTNAME: postgres
-      POSTGRES_PASSWORD: 'ChooseYourOwnPasswordHere1234'
+      POSTGRES_PASSWORD: 'IHaveChangeTheVerySecretHere7677'
       POSTGRES_USER: guacamole_user
     image: guacamole/guacamole
     links:
@@ -138,25 +135,24 @@ services:
       guacnetwork_compose:
     ports:
 ## enable next line if not using nginx
-##    - 8080:8080/tcp # Guacamole is on :8080/guacamole, not /.
+   - 7663:8080/tcp # Guacamole is on :8080/guacamole, not /.
 ## enable next line when using nginx
-    - 8080/tcp
+    # - 8080/tcp
     restart: always
 
-########### optional ##############
-  # nginx
-  nginx:
-   container_name: nginx_guacamole_compose
-   restart: always
-   image: nginx
-   volumes:
-   - ./nginx/templates:/etc/nginx/templates:ro
-   - ./nginx/ssl/self.cert:/etc/nginx/ssl/self.cert:ro
-   - ./nginx/ssl/self-ssl.key:/etc/nginx/ssl/self-ssl.key:ro
-   ports:
-   - 8443:443
-   links:
-   - guacamole
-   networks:
-     guacnetwork_compose:
+########### optional ##### nginx###########
+  # nginx:
+  #  container_name: nginx_guacamole_compose
+  #  restart: always
+  #  image: nginx
+  #  volumes:
+  #  - ./nginx/templates:/etc/nginx/templates:ro
+  #  - ./nginx/ssl/self.cert:/etc/nginx/ssl/self.cert:ro
+  #  - ./nginx/ssl/self-ssl.key:/etc/nginx/ssl/self-ssl.key:ro
+  #  ports:
+  #  - 8443:443
+  #  links:
+  #  - guacamole
+  #  networks:
+  #    guacnetwork_compose:
 ####################################################################################
