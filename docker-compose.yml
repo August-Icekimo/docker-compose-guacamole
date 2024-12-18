@@ -4,6 +4,12 @@ networks:
   guacnetwork_compose:
     driver: bridge
 
+volumes:
+  guacamole_drive:
+  guacamole_record:
+  guacamole_postgres_data:
+  guacamole_postgres_init:
+
 services:
   guacd:
     container_name: guacd_compose
@@ -18,8 +24,8 @@ services:
       guacnetwork_compose:
     restart: always
     volumes:
-    - ./drive:/drive:rw
-    - ./record:/record:rw
+      - guacamole_drive:/drive:rw
+      - guacamole_record:/record:rw
 
   postgres:
     container_name: postgres_guacamole_compose
@@ -33,26 +39,5 @@ services:
       guacnetwork_compose:
     restart: always
     volumes:
-    - ./init:/docker-entrypoint-initdb.d:z
-    - ./data:/var/lib/postgresql/data:Z
-
-  guacamole:
-    container_name: guacamole_compose
-    depends_on:
-    - guacd
-    - postgres
-    environment:
-      GUACD_HOSTNAME: 172.22.0.2
-      POSTGRESQL_DATABASE: guacamole_db
-      POSTGRESQL_HOSTNAME: 172.22.0.3
-      POSTGRESQL_PASSWORD: 'IHaveChangeTheVerySecretHere7677'
-      POSTGRESQL_USER: guacamole_user
-    image: guacamole/guacamole
-    links:
-    - guacd
-    networks:
-      guacnetwork_compose:
-    ports:
-    - 7663:8080/tcp 
-    restart: always
-
+      - guacamole_postgres_init:/docker-entrypoint-initdb.d:z
+      - guacamole_postgres_data:/var/lib/postgresql/data:Z
