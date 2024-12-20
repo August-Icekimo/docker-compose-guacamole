@@ -14,9 +14,9 @@ services:
   guacd:
     container_name: guacd_compose
     environment:
-      GUACD_HOSTNAME: 172.22.0.2
+      GUACD_HOSTNAME: 172.26.0.2
       POSTGRES_DATABASE: guacamole_db
-      POSTGRES_HOSTNAME: 172.22.0.3
+      POSTGRES_HOSTNAME: 172.26.0.3
       POSTGRES_PASSWORD: 'IHaveChangeTheVerySecretHere7677'
       POSTGRES_USER: guacamole_user
     image: guacamole/guacd
@@ -41,3 +41,23 @@ services:
     volumes:
       - guacamole_postgres_init:/docker-entrypoint-initdb.d:z
       - guacamole_postgres_data:/var/lib/postgresql/data:Z
+ 
+  guacamole:
+    container_name: guacamole_compose
+    depends_on:
+    - guacd
+    - postgres
+    environment:
+      GUACD_HOSTNAME: 172.26.0.2
+      POSTGRESQL_DATABASE: guacamole_db
+      POSTGRESQL_HOSTNAME: 172.26.0.3
+      POSTGRESQL_PASSWORD: 'IHaveChangeTheVerySecretHere7677'
+      POSTGRESQL_USER: guacamole_user
+    image: guacamole/guacamole
+    links:
+    - guacd
+    networks:
+      guacnetwork_compose:
+    ports:
+    - 7663:8080/tcp 
+    restart: always
